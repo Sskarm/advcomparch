@@ -86,6 +86,49 @@ private:
     unsigned int table_entries;
 };
 
+class SaturatingCounterPredictor : public BranchPredictor {
+	public:
+		SaturatingCounterPredictor(unsigned index_bits_): BranchPredictor(), index_bits(index_bits_){
+			table_entries = 1 << index_bits;
+			STATE = new int[table_entries];
+			memset(STATE, 0, table_entries * sizeof(int));
+		}
+
+		~SaturatingCounterPredictor() {
+			delete[] STATE;
+		}
+
+		virtual bool predict(ADDRINT ip, ADDRINT target) {
+			unsigned int idx = ip % table_entries;
+			return (STATE[idx] >= 2);
+		}
+
+		virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+			unsigned int idx = ip % table_entries;
+
+			if (actual) {
+				if (STATE[idx] < 3)
+					STATE[idx]++;
+			} else {
+				if (STATE[idx] > 0)
+					STATE[idx]--;
+			}
+
+			updateCounters(predicted, actual);
+		}
+
+		virtual string getName() {
+			std::ostringstream stream;
+			stream << "2bit-SaturatingCounter-" << (table_entries / 1024) << "K";
+			return stream.str();
+		}
+
+	private:
+		unsigned int index_bits;
+		unsigned int table_entries;
+		int* STATE;
+	};
+
 // Fill in the BTB implementation ...
 class BTBPredictor : public BranchPredictor
 {

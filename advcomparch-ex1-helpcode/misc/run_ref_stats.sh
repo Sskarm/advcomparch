@@ -2,10 +2,11 @@
 # RUN TRAIN STATS
 
 # Absolute paths for PIN executable and tool:
-PIN_EXE="/home/skar/pin-external-4.2-99776-g21d818fa2-gcc-linux/pin"
+PIN_EXE="PIN_EXE="/home/skar/pin-external-4.2-99776-g21d818fa2-gcc-linux/pin"
+"
 PIN_TOOL="/home/skar/advcomparch/advcomparch-ex1-helpcode/pintool/obj-intel64/cslab_branch_stats.so"
 # Output directory for PIN's output -- BE CAREFUL! THE PATH NEEDS TO EXIST!!!
-outDir="/home/skar/advcomparch/advcomparch-ex1-helpcode/outputs_stats/ref"
+outDir="/home/skar/advcomparch/advcomparch-ex1-helpcode/outputs/branch_stats/ref"
 # Base directory that contains all benchmark folders (This is the directory where all the benchmark folders are)
 inputBase="/home/skar/advcomparch/advcomparch-ex1-helpcode/spec_execs_ref_inputs"
 

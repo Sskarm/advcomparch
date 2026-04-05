@@ -167,10 +167,7 @@ VOID InitPredictors()
     // // Pentium-M predictor
     // PentiumMBranchPredictor *pentiumPredictor = new PentiumMBranchPredictor();
     // branch_predictors.push_back(pentiumPredictor);
-    branch_predictors.push_back(new NbitPredictor(14, 1));
-    branch_predictors.push_back(new NbitPredictor(14, 2));
-    branch_predictors.push_back(new NbitPredictor(14, 3));
-    branch_predictors.push_back(new NbitPredictor(14, 4));
+    branch_predictors.push_back(new SaturatingCounterPredictor(14));
 
     /* ... */
 }
