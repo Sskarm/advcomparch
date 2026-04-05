@@ -1,0 +1,10 @@
+*.o
+*.out
+*.exe
+*.class
+build/
+dist/
+__pycache__/
+.vscode/
+spec_execs_ref_inputs/
+spec_execs_train_inputs/

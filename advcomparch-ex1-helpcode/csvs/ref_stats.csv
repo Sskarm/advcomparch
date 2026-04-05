@@ -1,0 +1,12 @@
+Benchmark,Total Branches,Conditional Taken,Conditional Non-Taken,Unconditional Branches,Calls,Returns,,,Benchmark,Conditional Taken,Conditional Non-Taken,Unconditional Branches,Calls,Returns
+403.gcc.cslab_branch_stats_train,33843770087,12296842130,13571514673,3134010276,2420701506,2420701502,,,403.gcc.cslab_branch_stats_train,36.33%,40.10%,9.26%,9.26%,7.15%
+410.bwaves.cslab_branch_stats_train,1.28568E+11,88592483503,34014692949,3853748387,1053761297,1053761293,,,410.bwaves.cslab_branch_stats_train,68.91%,26.46%,3.00%,3.00%,0.82%
+416.gamess.cslab_branch_stats_train,73894112363,34756621054,32132857316,5481924620,761354694,761354679,,,416.gamess.cslab_branch_stats_train,47.04%,43.49%,7.42%,7.42%,1.03%
+429.mcf.cslab_branch_stats_train,67874045798,25764447128,39087003883,2224162743,399216024,399216020,,,429.mcf.cslab_branch_stats_train,37.96%,57.59%,3.28%,3.28%,0.59%
+433.milc.cslab_branch_stats_train,67919982199,36675874303,16584639449,1322820264,6668324095,6668324088,,,433.milc.cslab_branch_stats_train,54.00%,24.42%,1.95%,1.95%,9.82%
+435.gromacs.cslab_branch_stats_train,84256708162,26179756735,52980565854,3595805919,750289829,750289825,,,435.gromacs.cslab_branch_stats_train,31.07%,62.88%,4.27%,4.27%,0.89%
+436.cactusADM.cslab_branch_stats_train,4364068636,4155679204,162691978,8434376,18631541,18631537,,,436.cactusADM.cslab_branch_stats_train,95.22%,3.73%,0.19%,0.19%,0.43%
+450.soplex.cslab_branch_stats_train,57466168415,31460495574,20383647486,1881871267,1870077046,1870077042,,,450.soplex.cslab_branch_stats_train,54.75%,35.47%,3.27%,3.27%,3.25%
+459.GemsFDTD.cslab_branch_stats_train,47124871693,33974307159,7769791232,2458154400,1461309453,1461309449,,,459.GemsFDTD.cslab_branch_stats_train,72.09%,16.49%,5.22%,5.22%,3.10%
+470.lbm.cslab_branch_stats_train,15278517633,527480282,11071876830,3673870659,2644933,2644929,,,470.lbm.cslab_branch_stats_train,3.45%,72.47%,24.05%,24.05%,0.02%
+483.xalancbmk.cslab_branch_stats_train,2.86244E+11,75673001691,1.61638E+11,7462347327,20735217419,20735217415,,,483.xalancbmk.cslab_branch_stats_train,26.44%,56.47%,2.61%,2.61%,7.24%
