@@ -11,16 +11,24 @@ PREDICTORS = [
 ]
 
 PREDICTOR_LINE_RE = re.compile(r"^\s*(.+?):\s+(\d+)\s+(\d+)\s*$")
+TOTAL_INSTR_RE = re.compile(r"^\s*Total Instructions:\s+(\d+)\s*$")
 
 
 def parse_predictor_file(file_path: Path) -> dict:
-    results = {}
+    results = {
+        "total_instructions": ""
+    }
 
     with file_path.open("r", encoding="utf-8", errors="replace") as f:
         in_branch_predictor_section = False
 
         for raw_line in f:
             line = raw_line.strip()
+
+            total_match = TOTAL_INSTR_RE.match(line)
+            if total_match:
+                results["total_instructions"] = int(total_match.group(1))
+                continue
 
             if line == "Branch Predictors: (Name - Correct - Incorrect)":
                 in_branch_predictor_section = True
@@ -76,6 +84,7 @@ def build_rows(input_dir: Path):
         "3-bit Incorrect",
         "4-bit Correct",
         "4-bit Incorrect",
+        "Total Instructions",
     ]
     rows.append(header)
 
@@ -93,6 +102,7 @@ def build_rows(input_dir: Path):
             parsed.get("Nbit-16K-3", {}).get("incorrect", ""),
             parsed.get("Nbit-16K-4", {}).get("correct", ""),
             parsed.get("Nbit-16K-4", {}).get("incorrect", ""),
+            parsed.get("total_instructions", ""),
         ]
         rows.append(row)
 
