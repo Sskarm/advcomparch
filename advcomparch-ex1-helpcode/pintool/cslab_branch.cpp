@@ -167,10 +167,16 @@ VOID InitPredictors()
     // // Pentium-M predictor
     // PentiumMBranchPredictor *pentiumPredictor = new PentiumMBranchPredictor();
     // branch_predictors.push_back(pentiumPredictor);
-    branch_predictors.push_back(new SaturatingCounterPredictor(14));
+
+    branch_predictors.push_back(new FSM2BitPredictor(14, "ABACBDCD", 3, "FSM-1"));
+    branch_predictors.push_back(new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2"));
+    branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3"));
+    branch_predictors.push_back(new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4"));
+    branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5"));
 
     /* ... */
 }
+
 
 VOID InitRas()
 {

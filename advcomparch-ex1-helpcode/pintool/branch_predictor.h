@@ -86,48 +86,116 @@ private:
     unsigned int table_entries;
 };
 
-class SaturatingCounterPredictor : public BranchPredictor {
+// class SaturatingCounterPredictor : public BranchPredictor {
+// 	public:
+// 		SaturatingCounterPredictor(unsigned index_bits_): BranchPredictor(), index_bits(index_bits_){
+// 			table_entries = 1 << index_bits;
+// 			STATE = new int[table_entries];
+// 			memset(STATE, 0, table_entries * sizeof(int));
+// 		}
+
+// 		~SaturatingCounterPredictor() {
+// 			delete[] STATE;
+// 		}
+
+// 		virtual bool predict(ADDRINT ip, ADDRINT target) {
+// 			unsigned int idx = ip % table_entries;
+// 			return (STATE[idx] >= 2);
+// 		}
+
+// 		virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+// 			unsigned int idx = ip % table_entries;
+
+// 			if (actual) {
+// 				if (STATE[idx] < 3)
+// 					STATE[idx]++;
+// 			} else {
+// 				if (STATE[idx] > 0)
+// 					STATE[idx]--;
+// 			}
+
+// 			updateCounters(predicted, actual);
+// 		}
+
+// 		virtual string getName() {
+// 			std::ostringstream stream;
+// 			stream << "2bit-SaturatingCounter-" << (table_entries / 1024) << "K";
+// 			return stream.str();
+// 		}
+
+// 	private:
+// 		unsigned int index_bits;
+// 		unsigned int table_entries;
+// 		int* STATE;
+// 	};
+
+
+
+class FSM2BitPredictor : public BranchPredictor{
 	public:
-		SaturatingCounterPredictor(unsigned index_bits_): BranchPredictor(), index_bits(index_bits_){
+		FSM2BitPredictor(unsigned index_bits_,const std::string& transitions_,unsigned output_mask_,const std::string& name_)
+		: BranchPredictor(),index_bits(index_bits_),transitions(transitions_),output_mask(output_mask_),name(name_){
 			table_entries = 1 << index_bits;
-			STATE = new int[table_entries];
-			memset(STATE, 0, table_entries * sizeof(int));
+			STATE = new unsigned char[table_entries];
+
+			for (unsigned i = 0; i < table_entries; i++)
+				STATE[i] = 0;   // αρχική κατάσταση A
+
+			// transitions string: A0 A1 B0 B1 C0 C1 D0 D1
+			for (int s = 0; s < 4; s++) {
+				next_state[s][0] = charToState(transitions[2 * s]);
+				next_state[s][1] = charToState(transitions[2 * s + 1]);
+			}
+
+			// output bits για A,B,C,D
+			// π.χ. output_mask = 3 => binary 0011 => A=0, B=0, C=1, D=1
+			for (int s = 0; s < 4; s++) {
+				prediction_bit[s] = (output_mask >> (3 - s)) & 1;
+			}
 		}
 
-		~SaturatingCounterPredictor() {
+		~FSM2BitPredictor() {
 			delete[] STATE;
 		}
 
 		virtual bool predict(ADDRINT ip, ADDRINT target) {
-			unsigned int idx = ip % table_entries;
-			return (STATE[idx] >= 2);
+			unsigned idx = ip % table_entries;
+			unsigned state = STATE[idx];
+			return prediction_bit[state];
 		}
 
 		virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
-			unsigned int idx = ip % table_entries;
-
-			if (actual) {
-				if (STATE[idx] < 3)
-					STATE[idx]++;
-			} else {
-				if (STATE[idx] > 0)
-					STATE[idx]--;
-			}
-
+			unsigned idx = ip % table_entries;
+			unsigned curr = STATE[idx];
+			STATE[idx] = next_state[curr][actual ? 1 : 0];
 			updateCounters(predicted, actual);
 		}
 
 		virtual string getName() {
 			std::ostringstream stream;
-			stream << "2bit-SaturatingCounter-" << (table_entries / 1024) << "K";
+			stream << name << " (" << transitions << ":" << output_mask << ")";
 			return stream.str();
 		}
 
 	private:
-		unsigned int index_bits;
-		unsigned int table_entries;
-		int* STATE;
-	};
+		unsigned char charToState(char c) {
+			if (c == 'A') return 0;
+			if (c == 'B') return 1;
+			if (c == 'C') return 2;
+			return 3; // D
+		}
+
+		unsigned index_bits;
+		unsigned table_entries;
+		unsigned char* STATE;
+
+		std::string transitions;
+		unsigned output_mask;
+		std::string name;
+
+		unsigned char next_state[4][2];
+		bool prediction_bit[4];
+};
 
 // Fill in the BTB implementation ...
 class BTBPredictor : public BranchPredictor
