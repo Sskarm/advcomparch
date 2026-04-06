@@ -1,0 +1,17 @@
+Total Instructions: 18199704182
+
+RAS: (Correct - Incorrect)
+RAS (1 entries): 21327294 5808298
+RAS (2 entries): 23746679 3388913
+RAS (4 entries): 25847725 1287867
+RAS (8 entries): 26990595 144997
+RAS (16 entries): 27135447 145
+RAS (32 entries): 27135592 0
+
+Branch Predictors: (Name - Correct - Incorrect)
+  Nbit-16K-1: 3371435895 339198416
+  Nbit-16K-2: 3469506200 241128111
+  Nbit-16K-3: 3476616030 234018281
+  Nbit-16K-4: 3475322089 235312222
+
+BTB Predictors: (Name - Correct - Incorrect - TargetCorrect)

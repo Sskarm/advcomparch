@@ -1,5 +1,5 @@
 *.o
-*.out
+*.log
 *.exe
 *.class
 build/

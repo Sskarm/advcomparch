@@ -1,0 +1,18 @@
+Total Instructions: 108776742205
+
+RAS: (Correct - Incorrect)
+RAS (1 entries): 30215810 26807161
+RAS (2 entries): 51033533 5989438
+RAS (4 entries): 55372492 1650479
+RAS (8 entries): 57022945 26
+RAS (16 entries): 57022971 0
+RAS (32 entries): 57022971 0
+
+Branch Predictors: (Name - Correct - Incorrect)
+  FSM-1 (ABACBDCD:3): 3206879608 47566826
+  FSM-2 (ABACADCD:3): 3206629176 47817258
+  FSM-3 (ABADBDCD:3): 3206097646 48348788
+  FSM-4 (ABADADCD:3): 3206641447 47804987
+  FSM-5 (ABADBDCC:3): 3192537320 61909114
+
+BTB Predictors: (Name - Correct - Incorrect - TargetCorrect)
