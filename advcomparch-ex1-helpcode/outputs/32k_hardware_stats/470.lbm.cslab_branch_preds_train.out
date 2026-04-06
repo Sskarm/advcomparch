@@ -1,0 +1,20 @@
+Total Instructions: 96483398089
+
+RAS: (Correct - Incorrect)
+RAS (1 entries): 2628709 2466
+RAS (2 entries): 2629763 1412
+RAS (4 entries): 2631145 30
+RAS (8 entries): 2631174 1
+RAS (16 entries): 2631175 0
+RAS (32 entries): 2631175 0
+
+Branch Predictors: (Name - Correct - Incorrect)
+  Nbit-32K-1: 1080176119 18597841
+  2bit-Counter-16K (ABACBDCD:3): 1066594479 32179481
+  FSM-2-16K (ABACADCD:3): 1066313845 32460115
+  FSM-3-16K (ABADBDCD:3): 1063399579 35374381
+  FSM-4-16K (ABADADCD:3): 1063036344 35737616
+  FSM-5-16K (ABADBDCC:3): 1067814001 30959959
+  Nbit-8K-4: 1023615099 75158861
+
+BTB Predictors: (Name - Correct - Incorrect - TargetCorrect)

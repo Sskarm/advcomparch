@@ -167,12 +167,38 @@ VOID InitPredictors()
     // // Pentium-M predictor
     // PentiumMBranchPredictor *pentiumPredictor = new PentiumMBranchPredictor();
     // branch_predictors.push_back(pentiumPredictor);
+    
+    // 5.3(ii)
+    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABACBDCD", 3, "FSM-1"));
+    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2"));
+    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3"));
+    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4"));
+    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5"));
 
-    branch_predictors.push_back(new FSM2BitPredictor(14, "ABACBDCD", 3, "FSM-1"));
-    branch_predictors.push_back(new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2"));
-    branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3"));
-    branch_predictors.push_back(new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4"));
-    branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5"));
+    // 5.3(iii): fixed hardware = 32K bits
+
+    // 1-bit predictor: 32K entries => 2^15
+    branch_predictors.push_back(new NbitPredictor(15, 1));
+
+    // 2-bit predictors: 16K entries => 2^14
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABACBDCD", 3, "2bit-Counter-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5-16K")
+    );
+
+    // 4-bit predictor: 8K entries => 2^13
+    branch_predictors.push_back(new NbitPredictor(13, 4));
 
     /* ... */
 }
