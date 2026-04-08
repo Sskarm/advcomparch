@@ -201,38 +201,130 @@ class FSM2BitPredictor : public BranchPredictor{
 class BTBPredictor : public BranchPredictor
 {
 public:
+	struct BTBEntry {
+			bool valid;
+			ADDRINT tag;
+			ADDRINT target;
+			UINT64 lru;
+		};
 	BTBPredictor(int btb_lines, int btb_assoc)
-	     : table_lines(btb_lines), table_assoc(btb_assoc)
-	{
-		/* ... fill me ... */
-	}
+        : BranchPredictor(),
+          table_lines(btb_lines),
+          table_assoc(btb_assoc),
+          correct_target_predictions(0),
+          lru_tick(0)
+    {
+        num_sets = table_lines / table_assoc;
+        table = new BTBEntry*[num_sets];
+        for (int i = 0; i < num_sets; i++) {
+            table[i] = new BTBEntry[table_assoc];
+            for (int j = 0; j < table_assoc; j++) {
+                table[i][j].valid = false;
+                table[i][j].tag = 0;
+                table[i][j].target = 0;
+                table[i][j].lru = 0;
+            }
+        }
+    }
 
 	~BTBPredictor() {
-		/* ... fill me ... */
-	}
+        for (int i = 0; i < num_sets; i++)
+            delete[] table[i];
+        delete[] table;
+    }
 
     virtual bool predict(ADDRINT ip, ADDRINT target) {
-		/* ... fill me ... */
-		return false;
-	}
+        int set_idx = ip % num_sets;
+        ADDRINT tag = ip / num_sets;
+
+        for (int way = 0; way < table_assoc; way++) {
+            if (table[set_idx][way].valid && table[set_idx][way].tag == tag) {
+                last_hit = true;
+                last_set = set_idx;
+                last_way = way;
+                return true;   // BTB hit => predict taken
+            }
+        }
+
+        last_hit = false;
+        last_set = set_idx;
+        last_way = -1;
+        return false;          // BTB miss => predict not taken
+    }
 
     virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
-		/* ... fill me ... */
-	}
+        int set_idx = ip % num_sets;
+        ADDRINT tag = ip / num_sets;
+
+        // Count direction correctness first
+        updateCounters(predicted, actual);
+
+        // If we predicted taken via BTB hit and branch was actually taken,
+        // check if target was correct.
+        if (last_hit && predicted && actual) {
+            if (table[last_set][last_way].target == target)
+                correct_target_predictions++;
+        }
+
+        // Update BTB only for actually taken branches
+        if (!actual)
+            return;
+
+        // Search for existing entry
+        for (int way = 0; way < table_assoc; way++) {
+            if (table[set_idx][way].valid && table[set_idx][way].tag == tag) {
+                table[set_idx][way].target = target;
+                table[set_idx][way].lru = ++lru_tick;
+                return;
+            }
+        }
+
+        // Find invalid entry first
+        for (int way = 0; way < table_assoc; way++) {
+            if (!table[set_idx][way].valid) {
+                table[set_idx][way].valid = true;
+                table[set_idx][way].tag = tag;
+                table[set_idx][way].target = target;
+                table[set_idx][way].lru = ++lru_tick;
+                return;
+            }
+        }
+
+        // Otherwise replace LRU entry
+        int victim = 0;
+        for (int way = 1; way < table_assoc; way++) {
+            if (table[set_idx][way].lru < table[set_idx][victim].lru)
+                victim = way;
+        }
+
+        table[set_idx][victim].valid = true;
+        table[set_idx][victim].tag = tag;
+        table[set_idx][victim].target = target;
+        table[set_idx][victim].lru = ++lru_tick;
+    }
 
     virtual string getName() { 
         std::ostringstream stream;
-		stream << "BTB-" << table_lines << "-" << table_assoc;
-		return stream.str();
-	}
+        stream << "BTB-" << table_lines << "-" << table_assoc;
+        return stream.str();
+    }
 
     UINT64 getNumCorrectTargetPredictions() { 
-		/* ... fill me ... */
-		return 0;
-	}
+        return correct_target_predictions;
+    }
 
 private:
-	int table_lines, table_assoc;
+    int table_lines, table_assoc;
+    int num_sets;
+
+    BTBEntry** table;
+
+    UINT64 correct_target_predictions;
+    UINT64 lru_tick;
+
+    bool last_hit = false;
+    int last_set = 0;
+    int last_way = -1;
 };
 
 
