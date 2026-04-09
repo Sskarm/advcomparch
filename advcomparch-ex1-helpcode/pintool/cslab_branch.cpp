@@ -177,43 +177,30 @@ VOID InitPredictors()
 
     // 5.3(iii): fixed hardware = 32K bits
 
-    // // 1-bit predictor: 32K entries => 2^15
-    // branch_predictors.push_back(new NbitPredictor(15, 1));
+    // 1-bit predictor: 32K entries => 2^15
+    branch_predictors.push_back(new NbitPredictor(15, 1));
 
-    // // 2-bit predictors: 16K entries => 2^14
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABACBDCD", 3, "2bit-Counter-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5-16K")
-    // );
+    // 2-bit predictors: 16K entries => 2^14
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABACBDCD", 3, "2bit-Counter-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4-16K")
+    );
+    branch_predictors.push_back(
+        new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5-16K")
+    );
 
-    // // 4-bit predictor: 8K entries => 2^13
-    // branch_predictors.push_back(new NbitPredictor(13, 4));
+    // 4-bit predictor: 8K entries => 2^13
+    branch_predictors.push_back(new NbitPredictor(13, 4));
 
-    //5.4 
-
-        // BTB configurations for 5.4
-        btb_predictors.push_back(new BTBPredictor(512, 1));
-        btb_predictors.push_back(new BTBPredictor(512, 2));
-
-        btb_predictors.push_back(new BTBPredictor(256, 2));
-        btb_predictors.push_back(new BTBPredictor(256, 4));
-
-        btb_predictors.push_back(new BTBPredictor(128, 2));
-        btb_predictors.push_back(new BTBPredictor(128, 4));
-
-        btb_predictors.push_back(new BTBPredictor(64, 4));
-        btb_predictors.push_back(new BTBPredictor(64, 8));
+    /* ... */
 }
 
 
