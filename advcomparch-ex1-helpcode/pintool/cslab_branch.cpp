@@ -201,17 +201,33 @@ VOID InitPredictors()
     // branch_predictors.push_back(new NbitPredictor(13, 4));
 
     /* ... */
+
+    // Perceptrons: M = 32, 512, 1024 and n = 4, 8, 32, 60, 72
+
+    branch_predictors.push_back(new PerceptronPredictor(32, 4));
+    branch_predictors.push_back(new PerceptronPredictor(32, 8));
+    branch_predictors.push_back(new PerceptronPredictor(32, 32));
+    branch_predictors.push_back(new PerceptronPredictor(32, 60));
+    branch_predictors.push_back(new PerceptronPredictor(32, 72));
+
+    branch_predictors.push_back(new PerceptronPredictor(512, 4));
+    branch_predictors.push_back(new PerceptronPredictor(512, 8));
+    branch_predictors.push_back(new PerceptronPredictor(512, 32));
+    branch_predictors.push_back(new PerceptronPredictor(512, 60));
+    branch_predictors.push_back(new PerceptronPredictor(512, 72));
+
+    branch_predictors.push_back(new PerceptronPredictor(1024, 4));
+    branch_predictors.push_back(new PerceptronPredictor(1024, 8));
+    branch_predictors.push_back(new PerceptronPredictor(1024, 32));
+    branch_predictors.push_back(new PerceptronPredictor(1024, 60));
+    branch_predictors.push_back(new PerceptronPredictor(1024, 72));
 }
 
 
 VOID InitRas()
 {
-    ras_vec.push_back(new RAS(4));
-    ras_vec.push_back(new RAS(8));
-    ras_vec.push_back(new RAS(16));
-    ras_vec.push_back(new RAS(32));
-    ras_vec.push_back(new RAS(48));
-    ras_vec.push_back(new RAS(64));
+    for (UINT32 i = 4; i <= 32; i*=2)
+        ras_vec.push_back(new RAS(i));
 }
 
 int main(int argc, char *argv[])
