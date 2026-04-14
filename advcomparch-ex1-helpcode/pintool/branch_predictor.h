@@ -14,7 +14,7 @@ class BranchPredictor
 {
 public:
     BranchPredictor() : correct_predictions(0), incorrect_predictions(0) {};
-    ~BranchPredictor() {};
+    virtual ~BranchPredictor() {};
 
     virtual bool predict(ADDRINT ip, ADDRINT target) = 0;
     virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) = 0;
@@ -349,6 +349,310 @@ private:
 		history_[history_start_] = t;
 		history_start_ = (1 + history_start_) % historyTableSize_;
 	  }
+};
+
+class AlwaysTakenPredictor : public BranchPredictor
+{
+public:
+    AlwaysTakenPredictor() : BranchPredictor() {}
+
+    virtual bool predict(ADDRINT ip, ADDRINT target) {
+        return true;
+    }
+
+    virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+        updateCounters(predicted, actual);
+    }
+
+    virtual string getName() {
+        return "Static-AlwaysTaken";
+    }
+};
+
+class BTFNTPredictor : public BranchPredictor
+{
+public:
+    BTFNTPredictor() : BranchPredictor() {}
+
+    virtual bool predict(ADDRINT ip, ADDRINT target) {
+        return (target < ip);
+    }
+
+    virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+        updateCounters(predicted, actual);
+    }
+
+    virtual string getName() {
+        return "Static-BTFNT";
+    }
+};
+
+class GlobalHistoryPredictor : public BranchPredictor
+{
+public:
+    GlobalHistoryPredictor(unsigned history_bits_, unsigned pht_index_bits_)
+        : BranchPredictor(),
+          history_bits(history_bits_),
+          pht_index_bits(pht_index_bits_),
+          ghr(0)
+    {
+        pht_entries = 1 << pht_index_bits;
+        PHT = new unsigned char[pht_entries];
+        memset(PHT, 0, pht_entries * sizeof(*PHT));
+    }
+
+    ~GlobalHistoryPredictor() {
+        delete[] PHT;
+    }
+
+    virtual bool predict(ADDRINT ip, ADDRINT target) {
+        unsigned idx = ghr % pht_entries;
+        return (PHT[idx] >= 2);
+    }
+
+    virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+        unsigned idx = ghr % pht_entries;
+
+        if (actual) {
+            if (PHT[idx] < 3) PHT[idx]++;
+        } else {
+            if (PHT[idx] > 0) PHT[idx]--;
+        }
+
+        ghr = ((ghr << 1) | (actual ? 1 : 0)) & ((1u << history_bits) - 1);
+        updateCounters(predicted, actual);
+    }
+
+    virtual string getName() {
+        std::ostringstream stream;
+        stream << "GlobalHistory-H" << history_bits << "-PHT" << pht_entries;
+        return stream.str();
+    }
+
+private:
+    unsigned history_bits;
+    unsigned pht_index_bits;
+    unsigned pht_entries;
+    unsigned ghr;
+    unsigned char* PHT;
+};
+
+class LocalHistoryPredictor : public BranchPredictor
+{
+public:
+    LocalHistoryPredictor(unsigned bht_index_bits_, unsigned local_history_bits_)
+        : BranchPredictor(),
+          bht_index_bits(bht_index_bits_),
+          local_history_bits(local_history_bits_)
+    {
+        bht_entries = 1 << bht_index_bits;
+        pht_entries = 8192;
+
+        BHT = new unsigned[bht_entries];
+        PHT = new unsigned char[pht_entries];
+
+        memset(BHT, 0, bht_entries * sizeof(*BHT));
+        memset(PHT, 0, pht_entries * sizeof(*PHT));
+    }
+
+    ~LocalHistoryPredictor() {
+        delete[] BHT;
+        delete[] PHT;
+    }
+
+    virtual bool predict(ADDRINT ip, ADDRINT target) {
+        unsigned bht_idx = ip % bht_entries;
+        unsigned local_hist = BHT[bht_idx];
+        unsigned pht_idx = local_hist % pht_entries;
+        return (PHT[pht_idx] >= 2);
+    }
+
+    virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+        unsigned bht_idx = ip % bht_entries;
+        unsigned local_hist = BHT[bht_idx];
+        unsigned pht_idx = local_hist % pht_entries;
+
+        if (actual) {
+            if (PHT[pht_idx] < 3) PHT[pht_idx]++;
+        } else {
+            if (PHT[pht_idx] > 0) PHT[pht_idx]--;
+        }
+
+        BHT[bht_idx] = ((local_hist << 1) | (actual ? 1 : 0)) & ((1u << local_history_bits) - 1);
+        updateCounters(predicted, actual);
+    }
+
+    virtual string getName() {
+        std::ostringstream stream;
+        stream << "LocalHistory-BHT" << bht_entries << "-H" << local_history_bits;
+        return stream.str();
+    }
+
+private:
+    unsigned bht_index_bits;
+    unsigned local_history_bits;
+    unsigned bht_entries;
+    unsigned pht_entries;
+
+    unsigned* BHT;
+    unsigned char* PHT;
+};
+
+class Alpha21264Predictor : public BranchPredictor
+{
+public:
+    Alpha21264Predictor()
+        : BranchPredictor(), ghr(0)
+    {
+        local_history_entries = 1024;
+        local_pht_entries = 1024;
+        global_pht_entries = 4096;
+        choice_entries = 4096;
+
+        localHistoryTable = new unsigned[local_history_entries];
+        localPHT = new unsigned char[local_pht_entries];
+        globalPHT = new unsigned char[global_pht_entries];
+        choicePHT = new unsigned char[choice_entries];
+
+        memset(localHistoryTable, 0, local_history_entries * sizeof(*localHistoryTable));
+        memset(localPHT, 0, local_pht_entries * sizeof(*localPHT));
+        memset(globalPHT, 0, global_pht_entries * sizeof(*globalPHT));
+        memset(choicePHT, 0, choice_entries * sizeof(*choicePHT));
+    }
+
+    ~Alpha21264Predictor() {
+        delete[] localHistoryTable;
+        delete[] localPHT;
+        delete[] globalPHT;
+        delete[] choicePHT;
+    }
+
+    virtual bool predict(ADDRINT ip, ADDRINT target) {
+        unsigned local_idx = ip % local_history_entries;
+        unsigned local_hist = localHistoryTable[local_idx] & ((1u << 10) - 1);
+        unsigned local_pred_idx = local_hist % local_pht_entries;
+        unsigned global_idx = ghr % global_pht_entries;
+        unsigned choice_idx = ghr % choice_entries;
+
+        last_local_prediction = (localPHT[local_pred_idx] >= 4);  // 3-bit counter
+        last_global_prediction = (globalPHT[global_idx] >= 2);    // 2-bit counter
+
+        if (choicePHT[choice_idx] >= 2)
+            return last_global_prediction;
+        else
+            return last_local_prediction;
+    }
+
+    virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+        unsigned local_idx = ip % local_history_entries;
+        unsigned local_hist = localHistoryTable[local_idx] & ((1u << 10) - 1);
+        unsigned local_pred_idx = local_hist % local_pht_entries;
+        unsigned global_idx = ghr % global_pht_entries;
+        unsigned choice_idx = ghr % choice_entries;
+
+        // update local predictor (3-bit saturating counter)
+        if (actual) {
+            if (localPHT[local_pred_idx] < 7) localPHT[local_pred_idx]++;
+            if (globalPHT[global_idx] < 3) globalPHT[global_idx]++;
+        } else {
+            if (localPHT[local_pred_idx] > 0) localPHT[local_pred_idx]--;
+            if (globalPHT[global_idx] > 0) globalPHT[global_idx]--;
+        }
+
+        bool local_correct = (last_local_prediction == actual);
+        bool global_correct = (last_global_prediction == actual);
+
+        if (local_correct && !global_correct) {
+            if (choicePHT[choice_idx] > 0) choicePHT[choice_idx]--;
+        } else if (!local_correct && global_correct) {
+            if (choicePHT[choice_idx] < 3) choicePHT[choice_idx]++;
+        }
+
+        localHistoryTable[local_idx] =
+            ((localHistoryTable[local_idx] << 1) | (actual ? 1 : 0)) & ((1u << 10) - 1);
+        ghr = ((ghr << 1) | (actual ? 1 : 0)) & ((1u << 12) - 1);
+
+        updateCounters(predicted, actual);
+    }
+
+    virtual string getName() {
+        return "Alpha21264";
+    }
+
+private:
+    unsigned* localHistoryTable;
+    unsigned char* localPHT;
+    unsigned char* globalPHT;
+    unsigned char* choicePHT;
+
+    unsigned local_history_entries;
+    unsigned local_pht_entries;
+    unsigned global_pht_entries;
+    unsigned choice_entries;
+
+    unsigned ghr;
+    bool last_local_prediction;
+    bool last_global_prediction;
+};
+
+class TournamentPredictor : public BranchPredictor
+{
+public:
+    TournamentPredictor(BranchPredictor* p0_, BranchPredictor* p1_, unsigned meta_index_bits_, const std::string& name_)
+        : BranchPredictor(), p0(p0_), p1(p1_), name(name_)
+    {
+        meta_entries = 1 << meta_index_bits_;
+        META = new unsigned char[meta_entries];
+        memset(META, 0, meta_entries * sizeof(*META));
+        last_p0 = false;
+        last_p1 = false;
+    }
+
+    ~TournamentPredictor() {
+        delete[] META;
+        delete p0;
+        delete p1;
+    }
+
+    virtual bool predict(ADDRINT ip, ADDRINT target) {
+        last_p0 = p0->predict(ip, target);
+        last_p1 = p1->predict(ip, target);
+
+        unsigned idx = ip % meta_entries;
+        return (META[idx] >= 2) ? last_p1 : last_p0;
+    }
+
+    virtual void update(bool predicted, bool actual, ADDRINT ip, ADDRINT target) {
+        p0->update(last_p0, actual, ip, target);
+        p1->update(last_p1, actual, ip, target);
+
+        unsigned idx = ip % meta_entries;
+        bool p0_correct = (last_p0 == actual);
+        bool p1_correct = (last_p1 == actual);
+
+        if (p0_correct && !p1_correct) {
+            if (META[idx] > 0) META[idx]--;
+        } else if (!p0_correct && p1_correct) {
+            if (META[idx] < 3) META[idx]++;
+        }
+
+        updateCounters(predicted, actual);
+    }
+
+    virtual string getName() {
+        return name;
+    }
+
+private:
+    BranchPredictor* p0;
+    BranchPredictor* p1;
+    std::string name;
+
+    unsigned meta_entries;
+    unsigned char* META;
+
+    bool last_p0;
+    bool last_p1;
 };
 
 

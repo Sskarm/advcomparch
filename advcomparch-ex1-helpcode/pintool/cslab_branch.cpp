@@ -163,71 +163,86 @@ VOID Fini(int code, VOID * v)
 
 VOID InitPredictors()
 {
+    // Static predictors
+    branch_predictors.push_back(new AlwaysTakenPredictor());
+    branch_predictors.push_back(new BTFNTPredictor());
 
-    // // Pentium-M predictor
-    // PentiumMBranchPredictor *pentiumPredictor = new PentiumMBranchPredictor();
-    // branch_predictors.push_back(pentiumPredictor);
-    
-    // 5.3(ii)
-    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABACBDCD", 3, "FSM-1"));
-    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2"));
-    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3"));
-    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4"));
-    // branch_predictors.push_back(new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5"));
+    // Best predictor from 5.3(iii)
+    // Αν τελικά διάλεξες άλλο FSM, άλλαξε μόνο αυτό το ένα line
+    branch_predictors.push_back(new FSM2BitPredictor(14, "ABACBDCD", 3, "Best-2bit-FSM"));
 
-    // 5.3(iii): fixed hardware = 32K bits
+    // Pentium-M predictor
+    branch_predictors.push_back(new PentiumMBranchPredictor());
 
-    // // 1-bit predictor: 32K entries => 2^15
-    // branch_predictors.push_back(new NbitPredictor(15, 1));
+    // Local-history predictors
+    // PHT fixed = 8192 entries x 2 bits = 16384 bits
+    // Remaining BHT budget = 16384 bits
+    // X=2048 => Z=8
+    // X=4096 => Z=4
+    // X=8192 => Z=2
+    branch_predictors.push_back(new LocalHistoryPredictor(11, 8)); // 2048 entries
+    branch_predictors.push_back(new LocalHistoryPredictor(12, 4)); // 4096 entries
+    branch_predictors.push_back(new LocalHistoryPredictor(13, 2)); // 8192 entries
 
-    // // 2-bit predictors: 16K entries => 2^14
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABACBDCD", 3, "2bit-Counter-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABACADCD", 3, "FSM-2-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABADBDCD", 3, "FSM-3-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABADADCD", 3, "FSM-4-16K")
-    // );
-    // branch_predictors.push_back(
-    //     new FSM2BitPredictor(14, "ABADBDCC", 3, "FSM-5-16K")
-    // );
+    // Global-history predictors
+    // Z chosen so that PHT overhead = 32K bits with 2-bit counters => 16384 entries
+    branch_predictors.push_back(new GlobalHistoryPredictor(4, 14));
+    branch_predictors.push_back(new GlobalHistoryPredictor(8, 14));
+    branch_predictors.push_back(new GlobalHistoryPredictor(12, 14));
 
-    // // 4-bit predictor: 8K entries => 2^13
-    // branch_predictors.push_back(new NbitPredictor(13, 4));
+    // Perceptrons with ~32K-bit overhead
+    // weight bits = 1 + floor(log2(theta))
+    // around-32K choices
+    branch_predictors.push_back(new PerceptronPredictor(256, 20)); // ~32256 bits
+    branch_predictors.push_back(new PerceptronPredictor(128, 32)); // ~29568 bits
+    branch_predictors.push_back(new PerceptronPredictor(64, 60));  // ~31232 bits
 
-    /* ... */
+    // Alpha 21264
+    branch_predictors.push_back(new Alpha21264Predictor());
 
-    // Perceptrons: M = 32, 512, 1024 and n = 4, 8, 32, 60, 72
+    // Tournament predictors
+    branch_predictors.push_back(
+        new TournamentPredictor(
+            new NbitPredictor(13, 2),                // 16K bits
+            new GlobalHistoryPredictor(8, 13),      // 8192 entries => 16K bits
+            10,
+            "Tournament-2bit-vs-Global"
+        )
+    );
 
-    branch_predictors.push_back(new PerceptronPredictor(32, 4));
-    branch_predictors.push_back(new PerceptronPredictor(32, 8));
-    branch_predictors.push_back(new PerceptronPredictor(32, 32));
-    branch_predictors.push_back(new PerceptronPredictor(32, 60));
-    branch_predictors.push_back(new PerceptronPredictor(32, 72));
+    branch_predictors.push_back(
+        new TournamentPredictor(
+            new NbitPredictor(13, 2),                // 16K bits
+            new FSM2BitPredictor(13, "ABADADCD", 3, "FSM16K"),
+            10,
+            "Tournament-2bit-vs-FSM"
+        )
+    );
 
-    branch_predictors.push_back(new PerceptronPredictor(512, 4));
-    branch_predictors.push_back(new PerceptronPredictor(512, 8));
-    branch_predictors.push_back(new PerceptronPredictor(512, 32));
-    branch_predictors.push_back(new PerceptronPredictor(512, 60));
-    branch_predictors.push_back(new PerceptronPredictor(512, 72));
+    branch_predictors.push_back(
+        new TournamentPredictor(
+            new NbitPredictor(13, 2),                // 16K bits
+            new PerceptronPredictor(32, 60),         // ~15616 bits
+            10,
+            "Tournament-2bit-vs-Perceptron"
+        )
+    );
 
-    branch_predictors.push_back(new PerceptronPredictor(1024, 4));
-    branch_predictors.push_back(new PerceptronPredictor(1024, 8));
-    branch_predictors.push_back(new PerceptronPredictor(1024, 32));
-    branch_predictors.push_back(new PerceptronPredictor(1024, 60));
-    branch_predictors.push_back(new PerceptronPredictor(1024, 72));
+    branch_predictors.push_back(
+        new TournamentPredictor(
+            new GlobalHistoryPredictor(12, 13),      // 16K bits
+            new PerceptronPredictor(32, 60),         // ~15616 bits
+            11,
+            "Tournament-Global-vs-Perceptron"
+        )
+    );
 }
 
 
 VOID InitRas()
 {
-    for (UINT32 i = 4; i <= 32; i*=2)
-        ras_vec.push_back(new RAS(i));
+    // for (UINT32 i = 4; i <= 32; i*=2)
+    //     ras_vec.push_back(new RAS(i));
 }
 
 int main(int argc, char *argv[])
