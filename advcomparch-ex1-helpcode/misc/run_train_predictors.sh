@@ -7,9 +7,9 @@
 PIN_EXE="/home/skar/pin-external-4.2-99776-g21d818fa2-gcc-linux/pin"
 PIN_TOOL="/home/skar/advcomparch/advcomparch-ex1-helpcode/pintool/obj-intel64/cslab_branch.so"
 # Output directory for PIN's output -- BE CAREFUL! THE PATH NEEDS TO EXIST!!!
-outDir="/home/skar/advcomparch/advcomparch-ex1-helpcode/outputs/all_predictors"
+outDir="/home/skar/advcomparch/advcomparch-ex1-helpcode/outputs/precision_test"
 # Base directory that contains all benchmark folders (This is the directory where all the benchmark folders are)
-inputBase="/home/skar/advcomparch/advcomparch-ex1-helpcode/spec_execs_train_inputs"
+inputBase="/home/skar/advcomparch/advcomparch-ex1-helpcode/spec_execs_ref_inputs"
 
 # Loop over every subfolder in the input base directory.
 # By uncommenting the respective lines below you can run either only one benchmark or all benchmarks inside a directory
@@ -48,7 +48,7 @@ folder="$inputBase/$1" # $1 is the first argument
             #{ /bin/bash -c "$pin_cmd" ; }
 	    # You can also measure execution time if you run it like this: 
             { time /bin/bash -c "$pin_cmd" ; } &> "$outDir/${BENCH}_timing.log"
-        ) &
+        )  &
     fi
 # done
 
