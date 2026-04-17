@@ -1,0 +1,25 @@
+Total Instructions: 1273858825862
+
+RAS: (Correct - Incorrect)
+
+Branch Predictors: (Name - Correct - Incorrect)
+  Static-AlwaysTaken: 527480257 11071876780
+  Static-BTFNT: 7860444716 3738912321
+  Best-2bit-FSM (ABACBDCD:3): 11464605445 134751592
+  Pentium-M: 11399671824 199685213
+  LocalHistory-BHT2048-H8: 11546282538 53074499
+  LocalHistory-BHT4096-H4: 11545160619 54196418
+  LocalHistory-BHT8192-H2: 11538771815 60585222
+  GlobalHistory-H4-PHT16384: 11533232376 66124661
+  GlobalHistory-H8-PHT16384: 11546736909 52620128
+  GlobalHistory-H12-PHT16384: 11546899193 52457844
+  Perceptron Branch Predictor (perceptrons: 256, history size: 20: 11546572040 52784997
+  Perceptron Branch Predictor (perceptrons: 128, history size: 32: 11546411548 52945489
+  Perceptron Branch Predictor (perceptrons: 64, history size: 60: 11548460518 50896519
+  Alpha21264: 11546937292 52419745
+  Tournament-2bit-vs-Global: 11546913813 52443224
+  Tournament-2bit-vs-FSM: 11464605566 134751471
+  Tournament-2bit-vs-Perceptron: 11548475512 50881525
+  Tournament-Global-vs-Perceptron: 11549245962 50111075
+
+BTB Predictors: (Name - Correct - Incorrect - TargetCorrect)
