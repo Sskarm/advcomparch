@@ -9,3 +9,4 @@ __pycache__/
 spec_execs_ref_inputs/
 spec_execs_train_inputs/
 .venv/
+spec_benchmarks/
