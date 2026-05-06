@@ -2,22 +2,30 @@
 
 ## Modify the following paths appropriately
 #Absolute paths for PIN executable and tool:
-PIN_EXE="~/pin-external-4.2-99776-g21d818fa2-gcc-linux/pin"
-PIN_TOOL="/path/to/pintool/obj-intel64/simulator.so"
+PIN_EXE="/home/ssm-user/pin-external-4.2-99776-g21d818fa2-gcc-linux/pin"
+PIN_TOOL="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/pintool/obj-intel64/simulator.so"
 # Output directory for PIN's output
-outDir="/path/to/outputs"
+outDir="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/outputs/L2_cache"
 # Base directory that contains all benchmark folders (This is the directory where all the benchmark folders are)
-inputBase="/path/to/spec_benchmarks"
+inputBase="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/spec_benchmarks"
 
 ## Triples of <cache_size>_<associativity>_<block_size>
-CONFS="512_4_128 512_8_128"
+CONFS="256_4_64 256_4_128 256_4_256"
+#  \
+# 512_4_64 512_4_128 512_4_256 \
+# 512_8_64 512_8_128 512_8_256 \
+# 512_16_64 512_16_128 512_16_256 \
+# 1024_8_64 1024_8_128 1024_8_256 \
+# 1024_16_64 1024_16_128 1024_16_256 \
+# 2048_16_64 2048_16_128 2048_16_256"
 
 L1size=32
 L1assoc=4
 L1bsize=32
 
 # Loop over every subfolder in the input base directory
-for folder in "$inputBase"/*; do
+# for folder in "$inputBase"/*; do
+folder="$inputBase/$1"
     if [ -d "$folder" ]; then
         BENCH=$(basename "$folder")
         (
@@ -63,7 +71,7 @@ for folder in "$inputBase"/*; do
 	    wait
         ) &
     fi
-done
+# done
 
 wait
 echo "All benchmarks done."

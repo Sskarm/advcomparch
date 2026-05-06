@@ -2,6 +2,7 @@
 *.log
 *.exe
 *.class
+*out.time
 build/
 dist/
 __pycache__/
