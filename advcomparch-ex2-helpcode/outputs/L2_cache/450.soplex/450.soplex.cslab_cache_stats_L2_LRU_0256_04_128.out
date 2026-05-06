@@ -1,9 +1,9 @@
 --------
 Total Statistics
 --------
-Total Instructions: 7444847180
-Total Cycles: 42640379407
-IPC: 0.174596
+Total Instructions: 7436997166
+Total Cycles: 42633888333
+IPC: 0.174439
 
 --------
 Two level Cache hierarchy
@@ -25,28 +25,28 @@ Store_allocation: Yes
 L2_inclusive: Yes
 
 L1 Cache Stats:
-L1-Load-Hits:        1816100785   83.39%
-L1-Load-Misses:       361632675   16.61%
-L1-Load-Accesses:    2177733460  100.00%
+L1-Load-Hits:        1814474535   83.38%
+L1-Load-Misses:       361652530   16.62%
+L1-Load-Accesses:    2176127065  100.00%
 
-L1-Store-Hits:         437401296   94.58%
-L1-Store-Misses:        25041381    5.42%
+L1-Store-Hits:         437403612   94.59%
+L1-Store-Misses:        25039065    5.41%
 L1-Store-Accesses:     462442677  100.00%
 
-L1-Total-Hits:        2253502081   85.35%
-L1-Total-Misses:       386674056   14.65%
-L1-Total-Accesses:    2640176137  100.00%
+L1-Total-Hits:        2251878147   85.34%
+L1-Total-Misses:       386691595   14.66%
+L1-Total-Accesses:    2638569742  100.00%
 
 L2 Cache Stats:
-L2-Load-Hits:         261243514   72.24%
-L2-Load-Misses:       100389161   27.76%
-L2-Load-Accesses:     361632675  100.00%
+L2-Load-Hits:         261239263   72.23%
+L2-Load-Misses:       100413267   27.77%
+L2-Load-Accesses:     361652530  100.00%
 
-L2-Store-Hits:          18409561   73.52%
-L2-Store-Misses:         6631820   26.48%
-L2-Store-Accesses:      25041381  100.00%
+L2-Store-Hits:          18420542   73.57%
+L2-Store-Misses:         6618523   26.43%
+L2-Store-Accesses:      25039065  100.00%
 
-L2-Total-Hits:         279653075   72.32%
-L2-Total-Misses:       107020981   27.68%
-L2-Total-Accesses:     386674056  100.00%
+L2-Total-Hits:         279659805   72.32%
+L2-Total-Misses:       107031790   27.68%
+L2-Total-Accesses:     386691595  100.00%
 
