@@ -42,7 +42,7 @@ KNOB<UINT32> KnobL2Associativity(KNOB_MODE_WRITEONCE, "pintool",
 /* Global Variables                                                      */
 /* ===================================================================== */
 
-typedef TWO_LEVEL_CACHE<CACHE_SET::LRU> CACHE_T; // This is where the replacement policy is chosen
+typedef TWO_LEVEL_CACHE<CACHE_SET::SRRIP> CACHE_T; // This is where the replacement policy is chosen
 CACHE_T *two_level_cache;
 
 UINT64 total_cycles, total_instructions;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
     if(PIN_Init(argc,argv))
         return Usage();
-
+    srand(21644);
     // Open output file
     outFile.open(KnobOutputFile.Value().c_str());
 
@@ -155,7 +155,8 @@ int main(int argc, char *argv[])
                                   KnobL2CacheSize.Value() * KILO,
                                   KnobL2BlockSize.Value(),
                                   KnobL2Associativity.Value(),
-				  0);
+				    0,
+                    1,10,200);
 				  //KnobL2PrefetchLines.Value()); (I don't want prefetching at all in this run, so hardcode 0)
 
     INS_AddInstrumentFunction(Instruction, 0);

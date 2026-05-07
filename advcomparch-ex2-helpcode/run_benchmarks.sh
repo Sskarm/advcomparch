@@ -5,12 +5,12 @@
 PIN_EXE="/home/ssm-user/pin-external-4.2-99776-g21d818fa2-gcc-linux/pin"
 PIN_TOOL="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/pintool/obj-intel64/simulator.so"
 # Output directory for PIN's output
-outDir="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/outputs/L2_cache"
+outDir="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/outputs/replacment_policies"
 # Base directory that contains all benchmark folders (This is the directory where all the benchmark folders are)
 inputBase="/home/ssm-user/advcomparch/advcomparch-ex2-helpcode/spec_benchmarks"
 
 ## Triples of <cache_size>_<associativity>_<block_size>
-CONFS="2048_16_64 2048_16_128 2048_16_256"
+CONFS="2048_16_256 1024_16_256 1024_8_256 512_16_256"
 
 L1size=32
 L1assoc=4
@@ -46,7 +46,7 @@ for folder in "$inputBase"/*; do
 	    	L2bsize=$(echo $conf | cut -d'_' -f3)
 
             	# Create and set output file path
-		outFile=$(printf "%s.cslab_cache_stats_L2_LRU_%04d_%02d_%03d.out" $BENCH ${L2size} ${L2assoc} ${L2bsize})
+		outFile=$(printf "%s.cslab_cache_stats_L2_SRRIP_%04d_%02d_%03d.out" $BENCH ${L2size} ${L2assoc} ${L2bsize})
 		outBenchFolder="$outDir/$BENCH"
 		mkdir -p "$outBenchFolder"  # Create internal folders if they don't already exist
 		pinOutFile="$outBenchFolder/$outFile"
